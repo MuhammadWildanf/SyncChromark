@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1779700822851,
+    "name": "Test User",
+    "division": "IT",
+    "userType": "undangan",
+    "imageUrl": "/uploads/selfie_1779700822849_v6nv5.jpg",
+    "timestamp": "2026-05-25T09:20:22.851Z"
+  },
+  {
+    "id": 1779713478246,
+    "name": "Budi Santoso",
+    "division": "Board of Directors",
+    "userType": "bod",
+    "imageUrl": "/uploads/selfie_1779713478243_8xvgc.jpg",
+    "timestamp": "2026-05-25T12:51:18.246Z"
+  },
+  {
+    "id": 1779713536282,
+    "name": "Siti Aminah",
+    "division": "HR",
+    "userType": "staf",
+    "imageUrl": "/uploads/selfie_1779713536279_4tagg.jpg",
+    "timestamp": "2026-05-25T12:52:16.282Z"
+  },
+  {
+    "id": 1779721624047,
+    "name": "Andi Wijaya",
+    "division": "Board of Directors",
+    "userType": "bod",
+    "imageUrl": "/uploads/selfie_1779721624045_qgxrt.jpg",
+    "timestamp": "2026-05-25T15:07:04.047Z"
+  }
+]

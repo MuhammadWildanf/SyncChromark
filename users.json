@@ -1,0 +1,6 @@
+[
+  {"code": "UND001", "name": "Budi Santoso", "division": "IT", "type": "undangan"},
+  {"code": "GUE001", "name": "Siti Aminah", "division": "HR", "type": "guest"},
+  {"code": "UND002", "name": "Andi Wijaya", "division": "Marketing", "type": "undangan"},
+  {"code": "GUE002", "name": "Bambang", "division": "Operasional", "type": "guest"}
+]

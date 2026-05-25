@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Data Pengunjung</h1>
+        <p>Silahkan isi data Anda untuk melanjutkan</p>
+
+        <div class="form-group">
+            <label for="name">Nama Lengkap</label>
+            <input type="text" id="name" placeholder="Nama Anda" required>
+        </div>
+        <% if (type !=='bod' ) { %>
+            <div class="form-group">
+                <label for="division">Divisi</label>
+                <select id="division" required>
+                    <option value="" selected disabled>Pilih Divisi</option>
+                    <% divisions.forEach(function(div) { %>
+                        <option value="<%= div %>"><%= div %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <% } %>
+
+                <button id="btn-next">Lanjut ke Selfie <i class="fas fa-camera"></i></button>
+    </div>
+
+    <script>
+        const btnNext = document.getElementById('btn-next');
+        const nameInput = document.getElementById('name');
+        const divisionSelect = document.getElementById('division');
+        const type = '<%= type %>';
+
+        btnNext.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const division = divisionSelect ? divisionSelect.value : 'Board of Directors';
+
+            if (!name) {
+                alert('Silahkan isi nama!');
+                return;
+            }
+
+            if (type !== 'bod' && !division) {
+                alert('Silahkan pilih divisi!');
+                return;
+            }
+
+            // Redirect to selfie page with data in query params
+            window.location.href = `/selfie?name=${encodeURIComponent(name)}&division=${encodeURIComponent(division)}&type=${type}`;
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>
+            <%= type==='bod' ? 'Board of Directors' : 'Staf' %>
+        </h1>
+        <p>Silahkan masukkan kode unik Anda atau scan QR Code</p>
+
+        <div class="form-group">
+            <label for="code">Kode Akses</label>
+            <input type="text" id="code" placeholder="Contoh: UND001" required>
+        </div>
+        <button id="btn-submit">Masuk <i class="fas fa-arrow-right"></i></button>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="/form?type=<%= type %>" style="color: #ff007f; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s;" onmouseover="this.style.color='#7f00ff'" onmouseout="this.style.color='#ff007f'">
+                Tidak punya kode akses? Registrasi Mandiri
+            </a>
+        </div>
+
+        <div style="margin-top: 25px; font-size: 0.8rem; color: rgba(255,255,255,0.4);">
+            <p>Gunakan kode contoh: <br>
+                <strong>UND001</strong> (Budi Santoso) atau <strong>GUE001</strong> (Siti Aminah)
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const btnSubmit = document.getElementById('btn-submit');
+        const codeInput = document.getElementById('code');
+        const type = '<%= type %>';
+
+        // --- DUKUNGAN UNTUK ALAT SCAN QR FISIK (KIOSK MODE) ---
+        // Selalu fokuskan kursor ke input box agar scanner siap menerima input kapan saja
+        function keepFocus() {
+            codeInput.focus();
+        }
+        
+        // Panggil saat halaman dimuat
+        keepFocus();
+        
+        // Kembalikan fokus jika layar diklik di mana saja
+        document.addEventListener('click', keepFocus);
+        
+        // Pengecekan berkala jika fokus terlepas
+        setInterval(() => {
+            if (document.activeElement !== codeInput) {
+                keepFocus();
+            }
+        }, 800);
+
+        // Deteksi tombol Enter otomatis yang dikirim oleh alat scan QR fisik setelah membaca data
+        codeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnSubmit.click();
+            }
+        });
+        // -----------------------------------------------------
+
+        btnSubmit.addEventListener('click', async () => {
+            const code = codeInput.value.trim();
+            if (!code) {
+                alert('Silahkan masukkan kode!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/verify-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code, type })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Redirect langsung ke halaman selfie dengan pre-filled data
+                    window.location.href = `/selfie?name=${encodeURIComponent(data.user.name)}&division=${encodeURIComponent(data.user.division)}&type=${type}`;
+                } else {
+                    alert(data.message);
+                    codeInput.value = ''; // Reset input agar siap di-scan ulang
+                    keepFocus();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan, coba lagi.');
+                codeInput.value = '';
+                keepFocus();
+            }
+        });
+    </script>
+</body>
+
+</html>

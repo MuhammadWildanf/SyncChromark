@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambil Selfie</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="selfie-container">
+        <div style="text-align: center;">
+            <h1
+                style="font-size: 1.8rem; margin-bottom: 5px; background: linear-gradient(to right, #ff007f, #7f00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Ambil Foto</h1>
+            <p style="margin-bottom: 0; color: rgba(255,255,255,0.7); font-size: 0.95rem;">
+                <%= name %> • <%= division %> • <span style="text-transform: capitalize;">
+                            <%= type %>
+                        </span>
+            </p>
+        </div>
+
+        <!-- Camera Frame -->
+        <div class="camera-box">
+            <!-- Video Stream -->
+            <video id="video" autoplay playsinline></video>
+
+            <!-- Preview Container inside camera box -->
+            <div class="preview-container" id="preview-container">
+                <img id="preview-img" src="" alt="Preview">
+
+                <div class="preview-controls">
+                    <button class="back-btn" id="retake-btn"><i class="fas fa-redo"></i> Ulangi</button>
+                    <button id="submit-btn"><i class="fas fa-check"></i> Kirim</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas to capture frame (hidden) -->
+        <canvas id="canvas"></canvas>
+
+        <!-- Capture Control -->
+        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+            <button class="capture-btn" id="capture-btn" title="Ambil Foto"></button>
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 0;">Ketuk tombol untuk memotret
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('capture-btn');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImg = document.getElementById('preview-img');
+        const retakeBtn = document.getElementById('retake-btn');
+        const submitBtn = document.getElementById('submit-btn');
+
+        const name = '<%= name %>';
+        const division = '<%= division %>';
+        const type = '<%= type %>';
+
+        let capturedImage = null;
+
+        // Start Camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 1080 },
+                        height: { ideal: 1920 }
+                    },
+                    audio: false
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Tidak dapat mengakses kamera. Pastikan izin diberikan.');
+            }
+        }
+
+        // Capture Photo
+        captureBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Mirror the image for selfie
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            capturedImage = canvas.toDataURL('image/jpeg', 0.8);
+            previewImg.src = capturedImage;
+            previewContainer.style.display = 'block';
+        });
+
+        // Retake Photo
+        retakeBtn.addEventListener('click', () => {
+            previewContainer.style.display = 'none';
+            capturedImage = null;
+        });
+
+        // Submit Data
+        submitBtn.addEventListener('click', async () => {
+            if (!capturedImage) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        division,
+                        type,
+                        image: capturedImage
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Data berhasil dikirim!');
+                    // Map type to disguised route
+                    const redirectPath = type === 'bod' ? '/7a2b' : '/9f4c';
+                    window.location.href = redirectPath;
+                } else {
+                    alert('Gagal mengirim data: ' + data.message);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Kirim';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim data.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Kirim';
+            }
+        });
+
+        // Initialize
+        startCamera();
+    </script>
+</body>
+
+</html>
